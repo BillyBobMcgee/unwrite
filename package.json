@@ -1,0 +1,57 @@
+{
+  "name": "unwrite",
+  "version": "0.2.0",
+  "description": "Undo one thing Claude Code did, without undoing everything after it.",
+  "license": "MIT",
+  "type": "commonjs",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "agent",
+    "undo",
+    "revert",
+    "hooks",
+    "three-way-merge",
+    "ai",
+    "blame"
+  ],
+  "bin": {
+    "unwrite": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc -p . --noEmit",
+    "test": "node --import tsx --test tests/blame.test.ts tests/diff.test.ts tests/integrity.test.ts tests/revert.test.ts tests/search.test.ts tests/settings.test.ts",
+    "prepublishOnly": "npm run build && npm test",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "demo": "npm run build && node scripts/demo.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "commander": "^12.1.0",
+    "node-diff3": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BillyBobMcgee/unwrite.git"
+  },
+  "homepage": "https://github.com/BillyBobMcgee/unwrite#readme",
+  "bugs": {
+    "url": "https://github.com/BillyBobMcgee/unwrite/issues"
+  }
+}
