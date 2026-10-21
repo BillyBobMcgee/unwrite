@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Fixed:
+
+- `PowerShell` and `Agent` calls showed up as raw JSON in `list` and `show`.
+  They show the command or task now.
+- Tools that don't change files like `ToolSearch` and `AskUserQuestion` aren't
+  logged anymore.
+
 ## 0.2.0
 
 Mostly this release is the stuff that was missing to make it usable day to day,

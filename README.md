@@ -131,10 +131,10 @@ tool call. Snapshots are content-addressed the way git objects are, in
 `.unwrite/objects/`, and the log itself is a SQLite table in
 `.unwrite/log.sqlite`.
 
-Anything that isn't a file write (`Bash`, `WebFetch`, MCP tools, subagents) gets
-logged as a **barrier**: a marker saying something happened here that reverting
-can't undo. Pure reads (`Read`, `Grep`, `Glob`, `TodoWrite`) aren't logged at
-all.
+Anything that isn't a file write (`Bash`, `PowerShell`, `WebFetch`, MCP tools,
+subagents) gets logged as a **barrier**: a marker saying something happened here
+that reverting can't undo. Pure reads (`Read`, `Grep`, `Glob`, `TodoWrite`) and
+tools like `AskUserQuestion` that don't change anything aren't logged at all.
 
 The revert itself is a three-way merge, same trick `git revert` uses:
 
@@ -183,7 +183,7 @@ grow, though identical content is only stored once.
 Needs Node 22 or newer (`better-sqlite3` doesn't build below that).
 
 ```sh
-npm test          # 37 tests, no Claude Code needed
+npm test          # 39 tests, no Claude Code needed
 npm run smoke     # drives the built CLI with real hook payloads
 npm run demo      # the scripted session from the top of this README
 npm run typecheck

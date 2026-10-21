@@ -1,7 +1,7 @@
 export const FILE_WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit", "NotebookEdit"]);
 
-// Pure reads never touch disk state and generate no meaningful undo target,
-// so they're skipped entirely rather than logged as barriers.
+// Reads and tools that don't touch files like AskUserQuestion or plan mode
+// have nothing to undo so they're skipped instead of logged as barriers.
 export const SILENT_TOOLS = new Set([
   "Read",
   "Glob",
@@ -9,6 +9,11 @@ export const SILENT_TOOLS = new Set([
   "TodoWrite",
   "ListMcpResourcesTool",
   "ReadMcpResourceTool",
+  "ReadMcpResourceDirTool",
+  "ToolSearch",
+  "AskUserQuestion",
+  "EnterPlanMode",
+  "ExitPlanMode",
 ]);
 
 export type ToolKind = "file-write" | "barrier" | "silent";
@@ -40,14 +45,16 @@ export function looksBinary(buffer: Buffer): boolean {
 }
 
 export function barrierDetail(toolName: string, toolInput: any): string {
-  if (toolName === "Bash") {
+  // PowerShell is the shell tool on Windows and takes the same `command`.
+  if (toolName === "Bash" || toolName === "PowerShell") {
     const cmd = String(toolInput?.command ?? "").trim();
     return truncate(cmd);
   }
   if (toolName === "WebFetch" || toolName === "WebSearch") {
     return truncate(String(toolInput?.url ?? toolInput?.query ?? ""));
   }
-  if (toolName === "Task") {
+  // Older Claude Code versions call the subagent tool `Task`.
+  if (toolName === "Task" || toolName === "Agent") {
     return truncate(String(toolInput?.description ?? toolInput?.prompt ?? ""));
   }
   return truncate(JSON.stringify(toolInput ?? {}));

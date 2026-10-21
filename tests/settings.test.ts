@@ -11,7 +11,7 @@ import {
   readSettings,
   ensureGitignore,
 } from "../src/settings";
-import { classifyTool, resolveFilePath, looksBinary } from "../src/classify";
+import { classifyTool, resolveFilePath, looksBinary, barrierDetail } from "../src/classify";
 import { toolCallFailed } from "../src/types";
 
 function tempDir(): string {
@@ -93,8 +93,26 @@ test("tools are classified into file writes, barriers and silent reads", () => {
   assert.equal(classifyTool("Edit"), "file-write");
   assert.equal(classifyTool("NotebookEdit"), "file-write");
   assert.equal(classifyTool("Bash"), "barrier");
+  assert.equal(classifyTool("PowerShell"), "barrier");
   assert.equal(classifyTool("mcp__github__create_pr"), "barrier");
   assert.equal(classifyTool("Read"), "silent");
+});
+
+test("tools like AskUserQuestion that change nothing aren't logged as barriers", () => {
+  for (const tool of ["ToolSearch", "AskUserQuestion", "EnterPlanMode", "ExitPlanMode"]) {
+    assert.equal(classifyTool(tool), "silent", tool);
+  }
+});
+
+test("PowerShell and Agent barriers show the command or task instead of raw JSON", () => {
+  assert.equal(
+    barrierDetail("PowerShell", { command: "npm install undici", description: "Install undici" }),
+    "npm install undici"
+  );
+  assert.equal(
+    barrierDetail("Agent", { description: "Find auth callers", prompt: "Search for authHeader()" }),
+    "Find auth callers"
+  );
 });
 
 test("NotebookEdit's notebook_path is resolved like a file path", () => {
