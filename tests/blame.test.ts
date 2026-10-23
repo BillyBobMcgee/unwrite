@@ -80,3 +80,38 @@ test("an untracked file blames every line as untracked", () => {
     ws.cleanup();
   }
 });
+
+test("lines you add between claude edits are untracked", () => {
+  const ws = makeWorkspace();
+  try {
+    ws.agentWrite("app.ts", "one\ntwo\n", "first pass");
+    ws.write("app.ts", "one\nmine\ntwo\n");
+    ws.agentWrite("app.ts", "one\nmine\ntwo\nthree\n", "add three");
+
+    const result = blame(ws, "app.ts");
+
+    assert.equal(result.drift, false);
+    assert.equal(result.lines[1].text, "mine");
+    assert.equal(result.lines[1].action, null);
+    assert.equal(result.lines[1].untracked, true);
+    assert.equal(result.lines[3].action!.intent, "add three");
+  } finally {
+    ws.cleanup();
+  }
+});
+
+test("rewriting a deleted file starts blame over", () => {
+  const ws = makeWorkspace();
+  try {
+    ws.agentWrite("app.ts", "same\nold\n", "first version");
+    fs.unlinkSync(ws.file("app.ts"));
+    ws.agentWrite("app.ts", "same\nnew\n", "second version");
+
+    const result = blame(ws, "app.ts");
+
+    assert.equal(result.lines[0].action!.intent, "second version");
+    assert.equal(result.lines[1].action!.intent, "second version");
+  } finally {
+    ws.cleanup();
+  }
+});

@@ -8,6 +8,8 @@ Fixed:
   They show the command or task now.
 - Tools that don't change files like `ToolSearch` and `AskUserQuestion` aren't
   logged anymore.
+- `blame` gave Claude credit for lines you added between its edits.
+- Deleted then rewritten files kept their old blame.
 
 ## 0.2.0
 

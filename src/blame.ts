@@ -56,6 +56,12 @@ export function blameFile(
 
   for (const action of history) {
     if (!action.post_hash) continue;
+    // anything that changed in between wasn't claude
+    const pre = action.pre_hash ? splitLines(loadObject(action.pre_hash)) : [];
+    if (!sameLines(lines, pre)) {
+      attribution = carryForward(lines, pre, attribution, { action: null, untracked: true });
+      lines = pre;
+    }
     const next = splitLines(loadObject(action.post_hash));
     attribution = carryForward(lines, next, attribution, { action, untracked: false });
     lines = next;
