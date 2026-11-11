@@ -2,7 +2,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
-import { findExistingUnwriteRoot, ensureUnwriteRoot } from "./paths";
+import { findExistingUnwriteRoot, ensureUnwriteRoot, canonicalPath } from "./paths";
 import {
   openDb,
   listActions,
@@ -112,7 +112,7 @@ program
     const db = openDb(requireRoot());
     const rows = listActions(db, {
       limit: Number(opts.limit),
-      filePath: opts.file ? path.resolve(opts.file) : undefined,
+      filePath: opts.file ? canonicalPath(opts.file) : undefined,
       sessionId: opts.session,
       since: opts.since,
       includeBarriers: !opts.editsOnly,
@@ -169,7 +169,7 @@ program
     const root = requireRoot();
     const db = openDb(root);
     const store = new ObjectStore(root);
-    const filePath = path.resolve(file);
+    const filePath = canonicalPath(file);
 
     let current: string;
     try {

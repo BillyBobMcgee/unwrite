@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import { makeWorkspace } from "./helpers";
 import { blameFile } from "../src/blame";
-import { fileHistory } from "../src/db";
+import { fileHistory, stats } from "../src/db";
 
 function blame(ws: ReturnType<typeof makeWorkspace>, name: string) {
   const filePath = ws.file(name);
@@ -111,6 +111,32 @@ test("rewriting a deleted file starts blame over", () => {
 
     assert.equal(result.lines[0].action!.intent, "second version");
     assert.equal(result.lines[1].action!.intent, "second version");
+  } finally {
+    ws.cleanup();
+  }
+});
+
+test("a file has one history however its path was spelled", () => {
+  const ws = makeWorkspace();
+  try {
+    // only differs on Windows: forward slashes and a lowercase drive letter
+    const slashed = ws
+      .file("app.ts")
+      .replace(/\\/g, "/")
+      .replace(/^[A-Z]:/, (drive) => drive.toLowerCase());
+
+    ws.agentWrite("app.ts", "one\n", "first");
+    ws.agentWrite("app.ts", "one\ntwo\n", "second", slashed);
+    ws.agentWrite("app.ts", "one\ntwo\nthree\n", "third", "./app.ts");
+
+    const result = blame(ws, "app.ts");
+
+    assert.equal(result.drift, false);
+    assert.deepEqual(
+      result.lines.map((line) => line.action?.intent),
+      ["first", "second", "third"]
+    );
+    assert.equal(stats(ws.db).files, 1);
   } finally {
     ws.cleanup();
   }

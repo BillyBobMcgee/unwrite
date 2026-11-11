@@ -10,6 +10,8 @@ Fixed:
   logged anymore.
 - `blame` gave Claude credit for lines you added between its edits.
 - Deleted then rewritten files kept their old blame.
+- `C:/proj/a.ts` and `C:\proj\a.ts` counted as two different files so `blame`
+  and `list --file` missed half the edits. Same with relative paths.
 
 ## 0.2.0
 

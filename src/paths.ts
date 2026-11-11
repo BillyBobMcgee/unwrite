@@ -17,6 +17,14 @@ export function findExistingUnwriteRoot(startDir: string): string | null {
   }
 }
 
+// the same file can show up as C:/proj/a.ts or C:\proj\a.ts or as a relative
+// path so it gets one spelling before it's logged or looked up
+export function canonicalPath(filePath: string, base: string = process.cwd()): string {
+  const resolved = path.resolve(base, filePath);
+  // drive letter case changes with the terminal
+  return /^[a-z]:/.test(resolved) ? resolved[0].toUpperCase() + resolved.slice(1) : resolved;
+}
+
 export function objectsDir(unwriteRoot: string): string {
   return path.join(unwriteRoot, "objects");
 }

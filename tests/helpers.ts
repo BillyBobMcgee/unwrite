@@ -17,8 +17,11 @@ export interface Workspace {
   read(name: string): string;
   exists(name: string): boolean;
   write(name: string, content: string): void;
-  /** Simulates a full Claude Code tool call: PreToolUse, the write, PostToolUse. */
-  agentWrite(name: string, content: string, intent?: string): void;
+  /**
+   * Simulates a full Claude Code tool call: PreToolUse, the write, PostToolUse.
+   * Pass toolPath to send the path spelled some other way.
+   */
+  agentWrite(name: string, content: string, intent?: string, toolPath?: string): void;
   /** Simulates a tool call that Claude Code reported as failed. */
   agentFailedWrite(name: string, content: string): void;
   agentBash(command: string): void;
@@ -57,9 +60,9 @@ export function makeWorkspace(): Workspace {
     exists: (name) => fs.existsSync(file(name)),
     write: (name, content) => fs.writeFileSync(file(name), content, "utf8"),
 
-    agentWrite(name, content, intent) {
+    agentWrite(name, content, intent, toolPath) {
       const filePath = file(name);
-      const input = hook({ tool_input: { file_path: filePath }, tool_name: "Write" });
+      const input = hook({ tool_input: { file_path: toolPath ?? filePath }, tool_name: "Write" });
       runPreToolUse(input);
       fs.writeFileSync(filePath, content, "utf8");
       runPostToolUse({ ...input, hook_event_name: "PostToolUse", tool_response: { success: true } });

@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { findExistingUnwriteRoot } from "../paths";
+import { findExistingUnwriteRoot, canonicalPath } from "../paths";
 import { openDb, completeByToolUseId, abortByToolUseId } from "../db";
 import { ObjectStore } from "../store";
 import { classifyTool, resolveFilePath, looksBinary } from "../classify";
@@ -11,8 +11,9 @@ export function runPostToolUse(input: HookInput): void {
 
   if (classifyTool(input.tool_name) !== "file-write") return;
 
-  const filePath = resolveFilePath(input.tool_input);
-  if (!filePath) return;
+  const toolPath = resolveFilePath(input.tool_input);
+  if (!toolPath) return;
+  const filePath = canonicalPath(toolPath, input.cwd);
 
   const db = openDb(unwriteRoot);
 

@@ -183,7 +183,7 @@ grow, though identical content is only stored once.
 Needs Node 22 or newer (`better-sqlite3` doesn't build below that).
 
 ```sh
-npm test          # 39 tests, no Claude Code needed
+npm test          # 42 tests, no Claude Code needed
 npm run smoke     # drives the built CLI with real hook payloads
 npm run demo      # the scripted session from the top of this README
 npm run typecheck

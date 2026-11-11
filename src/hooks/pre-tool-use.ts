@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { findExistingUnwriteRoot } from "../paths";
+import { findExistingUnwriteRoot, canonicalPath } from "../paths";
 import { openDb, insertPending, insertBarrier } from "../db";
 import { ObjectStore } from "../store";
 import { classifyTool, barrierDetail, resolveFilePath, looksBinary } from "../classify";
@@ -30,8 +30,9 @@ export function runPreToolUse(input: HookInput): void {
   }
 
   // file-write: capture pre-state by reading the file as it stands right now
-  const filePath = resolveFilePath(input.tool_input);
-  if (!filePath) return;
+  const toolPath = resolveFilePath(input.tool_input);
+  if (!toolPath) return;
+  const filePath = canonicalPath(toolPath, input.cwd);
 
   const store = new ObjectStore(unwriteRoot);
   let preHash: string | null = null;
