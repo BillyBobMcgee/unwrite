@@ -27,7 +27,7 @@
     "build": "tsc -p .",
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc -p . --noEmit",
-    "test": "node --import tsx --test tests/blame.test.ts tests/diff.test.ts tests/integrity.test.ts tests/revert.test.ts tests/search.test.ts tests/settings.test.ts",
+    "test": "node --import tsx --test tests/blame.test.ts tests/cli.test.ts tests/diff.test.ts tests/integrity.test.ts tests/revert.test.ts tests/search.test.ts tests/settings.test.ts",
     "prepublishOnly": "npm run build && npm test",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "demo": "npm run build && node scripts/demo.mjs"

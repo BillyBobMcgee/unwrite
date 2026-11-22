@@ -71,10 +71,11 @@ program
   .command("uninstall")
   .description("remove unwrite's hooks from this project (keeps .unwrite/ and its history)")
   .action(() => {
-    const cwd = process.cwd();
+    const root = findExistingUnwriteRoot(process.cwd());
+    const projectDir = root ? path.dirname(root) : process.cwd();
     let removed = false;
     for (const name of ["settings.json", "settings.local.json"]) {
-      if (removeHookSettings(path.join(cwd, ".claude", name))) {
+      if (removeHookSettings(path.join(projectDir, ".claude", name))) {
         console.log(`${color.green("✓")} removed unwrite hooks from .claude/${name}`);
         removed = true;
       }
@@ -303,18 +304,13 @@ program
   .command("doctor")
   .description("check that hooks are wired up and the history on disk is intact")
   .action(() => {
-    const cwd = process.cwd();
-    const root = findExistingUnwriteRoot(cwd);
+    const root = requireRoot();
     const problems: string[] = [];
-
-    if (!root) {
-      exit("No .unwrite/ found. Run 'unwrite init' in your project root first.");
-    }
     console.log(`${color.green("✓")} history directory ${root}`);
 
     let wired = false;
     for (const name of ["settings.json", "settings.local.json"]) {
-      const settingsPath = path.join(cwd, ".claude", name);
+      const settingsPath = path.join(path.dirname(root), ".claude", name);
       if (!fs.existsSync(settingsPath)) continue;
       const pre = registeredHookCommands(settingsPath, "PreToolUse");
       const post = registeredHookCommands(settingsPath, "PostToolUse");
@@ -336,8 +332,8 @@ program
     }
     if (!wired) problems.push("no unwrite hooks found in .claude/settings.json — run 'unwrite init'.");
 
-    const db = openDb(root!);
-    const store = new ObjectStore(root!);
+    const db = openDb(root);
+    const store = new ObjectStore(root);
     const pending = pendingActions(db);
     if (pending.length > 0) {
       problems.push(

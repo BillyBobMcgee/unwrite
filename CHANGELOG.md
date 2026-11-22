@@ -12,6 +12,8 @@ Fixed:
 - Deleted then rewritten files kept their old blame.
 - `C:/proj/a.ts` and `C:\proj\a.ts` counted as two different files so `blame`
   and `list --file` missed half the edits. Same with relative paths.
+- `doctor` said the hooks were missing and `uninstall` didn't remove them when
+  run from a subfolder.
 
 ## 0.2.0
 
